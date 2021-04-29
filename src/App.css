@@ -1,0 +1,26 @@
+
+.App {
+  text-align: center;
+}
+
+.list-group{
+  margin-top: 1vh;
+  /* width: 50vw; */
+}
+.list-group-item-action{
+  text-align: left;
+  padding:0;
+}
+
+.list-group-item-action, .list-group-item-action label:hover{
+  cursor:pointer;
+}
+
+.list-group-item-action input[type="radio"]{
+ display: none;
+}
+
+.list-group-item-action label{
+  width:100%;
+  padding: 12px 20px;
+}
