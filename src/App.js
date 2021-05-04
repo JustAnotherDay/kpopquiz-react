@@ -1,5 +1,5 @@
 import './App.css';
-import ArtisQuizMain from "./components/ArtisQuizMain";
+import ArtisQuizMain from "./containers/ArtisQuizMain";
 
 function App() {
   return(
