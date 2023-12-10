@@ -21,7 +21,7 @@ class ArtistQuizChoices extends Component {
 
     async componentDidUpdate(prevProps) {
         const { artist_id } = this.props.artistData;
-
+        
         if (prevProps.artistData.artist_id !== artist_id) {
             if (artist_id) {
                 let choicesData = [];
@@ -30,7 +30,7 @@ class ArtistQuizChoices extends Component {
                         return { bgColor: "white", value: choice, choiceDisabled: false }
                     });
                 }
-
+                this.setState({'isAnswerCorrect': false});
                 this.setState({
                     choicesData: choicesData
                 });
@@ -64,6 +64,7 @@ class ArtistQuizChoices extends Component {
     }
 
     render() {
+        
         return (
             <div>
                 <div className="list-group">{

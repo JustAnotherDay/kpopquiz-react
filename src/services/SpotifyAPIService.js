@@ -33,30 +33,75 @@ class SpotifyAPI {
       });
   }
 
-  search(offset) {
+ 
+  extractArtist(searchResponse) {
+    const data = searchResponse.data.artists.items.reduce((filteredArtist, artist, idx) => {
+      if (artist?.genres.some(x => x.includes('k-pop'))) {
+        filteredArtist.push({
+          "idx": idx,
+          "artist_name": artist.name.toUpperCase(),
+          "artist_href": artist.href,
+          "artist_id": artist.id,
+        });
+      }
+      return filteredArtist;
+    }, []);
+
+    const pageInfo = { 
+      'offset' : searchResponse.data.artists.offset, 
+      'total': searchResponse.data.artists.total, 
+      'limit': searchResponse.data.artists.limit
+    };
+    
+    return { data, pageInfo};
+  }
+
+  extractTrack(searchResponse){
+    const data = searchResponse.data.tracks.items.map((track, idx) => {
+        return {
+          "idx": idx,
+          "artist_name": track.artists[0].name,
+          "artist_href": track.artists[0].href,
+          "artist_id": track.artists[0].id,
+        }      
+    });
+
+    const pageInfo = { 
+      'offset' : searchResponse.data.tracks.offset, 
+      'total': searchResponse.data.tracks.total, 
+      'limit': searchResponse.data.tracks.limit
+    };
+    return { data, pageInfo};
+  }
+
+  search(page, type = 'track') {
+    type = 'artist';
+    const limit = 50;
+    const offset = page * limit;
     const config = {
       headers: {
         Authorization: `Bearer ${this.loginToken}`
       },
     };
     return axios
-      .get(`https://api.spotify.com/v1/search?q=kpop&limit=50&type=track&market=PH&offset=${offset}`, config)
+      .get(`https://api.spotify.com/v1/search?q=genre:k-pop&limit=${limit}&type=${type}&offset=${offset}`, config)
       .then(searchResponse => {
-        return searchResponse.data.tracks.items.map((track, idx) => {
 
-          return {
-
-            "idx": idx,
-            "artist_name": track.artists[0].name,
-            "artist_href": track.artists[0].href,
-            "artist_id": track.artists[0].id,
-          }
-        });
+        switch(type){
+          case 'track':
+            return this.extractTrack(searchResponse);
+          case 'artist':
+            return this.extractArtist(searchResponse);
+          default:
+            return {'data': [], 'pageInfo': null};
+        }
+        
       })
       .catch(error => {
+        debugger;
         console.log(error);
         if (error.response.status === 401) {
-          this.generateToken().then(() => this.Search(offset));
+          this.generateToken().then(() => this.search(offset));
         }
       });
   }
@@ -114,7 +159,7 @@ class SpotifyAPI {
       .catch(error => {
         console.log(error);
         if (error.response.status === 401) {
-          this.generateToken().then(() => this.getKpopPlaylist(id));
+          this.generateToken().then(() => this.getArtistImage(id));
         }
       });
   }

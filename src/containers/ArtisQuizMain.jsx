@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import SpotifyAPI from "../services/SpotifyAPIService";
 import ArtistQuizChoices from "./ArtistQuizChoices";
-import { shuffle, uniq } from 'underscore';
-
+//import { shuffle, uniq } from 'underscore';
+import { shuffle, uniq, uniqBy } from 'lodash';
 import ArtistImage from '../controls/ArtistImage'
 
 class ArtisQuizMain extends Component {
@@ -28,17 +28,18 @@ class ArtisQuizMain extends Component {
 
     async componentDidMount() {
         let getResultArtistTotal = 0;
-        let getResultArtistMax = 20;
+        let getResultArtistMax = 500;
         let artistsList = [];
-        let offset = 0;
-
+        let page = 0;
         while (getResultArtistTotal <= getResultArtistMax) {
-            let newArtistsList = await this.SpotifyService.getKpopPlaylist(offset++) ?? [];
-            artistsList = uniq(artistsList.concat(newArtistsList));
+            //let newArtistsList = await this.SpotifyService.getKpopPlaylist(offset++) ?? [];
+            let newArtistsList = await this.SpotifyService.search(page++) ?? [];
+            artistsList = uniqBy(artistsList.concat(newArtistsList.data), 'artist_id');
             getResultArtistTotal = artistsList.length;
 
             //if api page limit reached then stop
-            if (newArtistsList.length < 50)
+            const maxPage = (newArtistsList.pageInfo.total/newArtistsList.pageInfo.limit);
+            if (maxPage <= page || newArtistsList.length === 0)
                 break;
         }
 
